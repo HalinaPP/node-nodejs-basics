@@ -1,25 +1,28 @@
-import { cp, existsSync, mkdir } from 'fs';
+import { mkdir, readdir, copyFile } from 'fs/promises';
+import url from 'url';
+import { FILES_PATH, FAILED_MSG } from './constants.js';
+import { isExists } from './helpers.js';
 
 const copy = async () => {
-    const source = './src/fs/files/';
-    const dest = './src/fs/files_copy/';
+    const source = new URL(`${FILES_PATH}`, import.meta.url);
+    const destName = new URL('./files_copy/', import.meta.url);
+
     try {
-        if (existsSync(dest) || !existsSync(source)) {
-            throw new Error('FS operation failed');
+        const isSourceExists = await isExists(source);
+        const isDestNameExists = await isExists(destName);
+
+        if (!isSourceExists || isDestNameExists) {
+            throw new Error(FAILED_MSG);
         }
 
-        await mkdir(dest, async (err) => {
-            if (err) {
-                throw new Error('mkdir operation failed:', err.message);
-            }
+        await mkdir(destName);
+        const files = await readdir(source);
 
-            await cp(source, dest, { recursive: true }, (err) => {
-                if (err) {
-                    throw new Error('copy operation failed:', err.message);
-                }
-                console.log(`folder ${source} was copied to ${dest}`);
-            });
-
+        files.map((file) => {
+            copyFile(
+                url.fileURLToPath(source) + file,
+                url.fileURLToPath(destName) + file
+            );
         });
     } catch (err) {
         console.log(err.message);
