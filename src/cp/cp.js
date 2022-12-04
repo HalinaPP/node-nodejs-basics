@@ -7,7 +7,7 @@ const spawnChildProcess = async (args) => {
 
     const argsArr = args.split(' ');
 
-    const childProcess = spawn(`node`, [scriptFilePath, ...argsArr]);
+    const childProcess = spawn('node', [scriptFilePath, ...argsArr]);
 
     stdin.on('data', (input) => {
         childProcess.stdin.write(input);
