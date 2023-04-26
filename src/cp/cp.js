@@ -1,13 +1,12 @@
 import { spawn } from 'child_process';
 import { stdin } from 'process';
+import { fileURLToPath } from 'url'
 
 const spawnChildProcess = async (args) => {
     const scriptFile = new URL('./files/script.js', import.meta.url);
-    const scriptFilePath = scriptFile.pathname.slice(1);
+    const __filename = fileURLToPath(scriptFile);
 
-    const argsArr = args.split(' ');
-
-    const childProcess = spawn('node', [scriptFilePath, ...argsArr]);
+    const childProcess = spawn('node', [__filename, ...args]);
 
     stdin.on('data', (input) => {
         childProcess.stdin.write(input);
@@ -18,4 +17,4 @@ const spawnChildProcess = async (args) => {
     });
 };
 
-spawnChildProcess('--arg1 value1 --arg2 value2 --arg3 value3');
+spawnChildProcess(["--arg1", "--arg2", "--arg3"]);
